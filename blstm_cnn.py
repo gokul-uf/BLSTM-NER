@@ -2,6 +2,8 @@ from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
+import DataFeeder as df
+import numpy as np
 
 
 class BLSTM_CNN(object):
@@ -49,3 +51,29 @@ class BLSTM_CNN(object):
     def _build_loss_function(self):
         self.opt = tf.train.AdamOptimizer()
         self.train_step = self.opt.minimize(self.loss)
+
+batchSize = 100
+data = df.DataFeeder("", batchSize)
+
+embeddingSize = 100
+numUnitsLSTM = 100
+vocabularySize = len(data.dataImporter.words)
+numClasses = len(data.dataImporter.nerLabelsDictionary)
+
+cnn = BLSTM_CNN(embeddingSize, numUnitsLSTM, vocabularySize, numClasses)
+
+with tf.Session() as sess:
+    sess.run(tf.global_variables_initializer())
+    batch = data.getBatch("ner")
+    feed_dict = {
+        #cnn.words: [np.array(x) for x in batch["words"]],
+        #cnn.batch_size: batch["batch_size"],
+        #cnn.seq_lens: batch["seq_lens"],
+        #cnn.labels: batch["labels"]
+        cnn.words: np.zeros((100, 10)),
+        cnn.batch_size: 100,
+        cnn.seq_lens: 10 * np.ones(100),
+        cnn.labels: np.ones((100, 10))
+    }
+
+    loss = sess.run(cnn.loss, feed_dict=feed_dict)
