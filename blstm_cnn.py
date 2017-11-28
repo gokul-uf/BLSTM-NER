@@ -66,14 +66,14 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     batch = data.getBatch("ner")
     feed_dict = {
-        #cnn.words: [np.array(x) for x in batch["words"]],
-        #cnn.batch_size: batch["batch_size"],
-        #cnn.seq_lens: batch["seq_lens"],
-        #cnn.labels: batch["labels"]
-        cnn.words: np.zeros((100, 10)),
-        cnn.batch_size: 100,
-        cnn.seq_lens: 10 * np.ones(100),
-        cnn.labels: np.ones((100, 10))
+        cnn.words: batch["words"],
+        cnn.batch_size: batch["batch_size"],
+        cnn.seq_lens: batch["seq_lens"],
+        cnn.labels: batch["labels"]
+        #cnn.words: np.zeros((100, 10)),
+        #cnn.batch_size: batchSize,
+        #cnn.seq_lens: 10 * np.ones(100),
+        #cnn.labels: np.ones((100, 10))
     }
 
     loss = sess.run(cnn.loss, feed_dict=feed_dict)

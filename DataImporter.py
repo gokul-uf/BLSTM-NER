@@ -21,6 +21,13 @@ class DataImporter:
 		self.__processData()
 
 	def __processData(self):
+		self.wordDictionary["<PAD>"] = 0
+		self.words.append("<PAD>")
+
+		self.nerLabelsDictionary["<PAD>"] = 0
+
+		maxSentenceLength = -1
+
 		trainingData = io.open(self.file, mode="r", encoding="utf-8")
 		currentSentenceCoded = []
 		currentNerLabels = []
@@ -32,6 +39,7 @@ class DataImporter:
 				self.sentenceLengths.append(len(currentSentenceCoded))
 				self.labelsNER.append(currentNerLabels)
 				self.labelsFFD.append(currentFfdLabels)
+				maxSentenceLength = max(maxSentenceLength, len(currentSentenceCoded))
 
 				currentSentenceCoded = []
 				currentNerLabels = []
@@ -56,4 +64,11 @@ class DataImporter:
 			currentNerLabels.append(self.nerLabelsDictionary[nerLabel])
 
 			ffdLabel = values[4]
-			currentFfdLabels.append(int(ffdLabel)-1)
+			currentFfdLabels.append(int(ffdLabel))
+
+		#Add padding
+		for i in range(len(self.codedSentences)):
+			if self.sentenceLengths[i] < maxSentenceLength:
+				self.codedSentences[i].extend([0]*(maxSentenceLength - self.sentenceLengths[i]))
+				self.labelsNER[i].extend([0] * (maxSentenceLength - self.sentenceLengths[i]))
+				self.labelsFFD[i].extend([0] * (maxSentenceLength - self.sentenceLengths[i]))
